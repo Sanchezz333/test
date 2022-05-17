@@ -2,9 +2,7 @@ import pygame
 import math
 import random
 
-
 class Ball:
-    color = [0, 0, 0]
     x_position = 0
     y_position = 0
     speed = 4
@@ -13,9 +11,9 @@ class Ball:
     y_compression = False
     x_compression_rate = 0
     y_compression_rate = 0
-    angle_a = 1
-    angle_b = 1
-
+    move_side_y = 1
+    move_side_x = 1
+    touch_side = [[False, False],[False, False]]
     
 
     def __init__(self, screen, screen_size=[0,0], diametr=10, elastic=0, ):
@@ -27,57 +25,80 @@ class Ball:
         self.screen = screen
         self.angle = random.randrange(0, 157) / 100
         self.base_angle = self.angle
-
+        self.color = [0, 0, 0]
     
-    def set_position(self, x,y):
+    
+    def setPosition(self, x,y):
         self.x_position = x
         self.y_position = y
+
+
+    def setColor(self, r, g, b):
+        self.color[0] = r
+        self.color[1] = g
+        self.color[2] = b
+
 
 
     def move(self):
         self.x_position += self.speed * math.cos(self.angle)
         self.y_position += self.speed * math.sin(self.angle)
-        self.in_frame()
         
-        if self.touch: #Рисуем сжатие
-            if self.elastic != 0:
-                if self.x_compression or self.y_compression:
+        if self.itTouch():            
+            if self.elastic != 0: # Для эластичного
+                if not self.touch: # Определение оси сжатия
+                    self.touchSide()
+                    self.touch = True
+                    self.x_compression = self.touch_side[0][0] or self.touch_side[0][1]
+                    self.y_compression = self.touch_side[1][0] or self.touch_side[1][1]
+                
+                if self.x_compression or self.y_compression: # Сжатие
                     if self.x_compression:
-                        self.x_compression_rate += self.speed * math.cos(self.angle) *2
+                        self.x_compression_rate += abs(self.speed * math.cos(self.angle))
                     if self.y_compression:
-                        self.y_compression_rate += self.speed * math.sin(self.angle) *2
-
-                    if self.x_compression_rate >= self.elastic or self.x_compression_rate >= self.elastic:
+                        self.y_compression_rate += abs(self.speed * math.sin(self.angle))
+                    if self.x_compression_rate >= self.elastic or self.y_compression_rate >= self.elastic:  # Сжатие закончено
                         self.x_compression = False
                         self.y_compression = False
-                        self.angle = self.angle_b * (self.angle_a * self.base_angle + (self.angle_b - 1)/2 * 3.14)
-                        self.base_angle += random.randrange(-10, 10)/ 100 
-                else:    
+                        self.getAngle()
+                        self.touchSideReset()
+                    
+                else: # Расширение
                     if self.x_compression_rate > 0:
-                        self.x_compression_rate -= self.speed * math.cos(self.angle) *2
-                        if self.x_compression_rate < 0:
-                            self.x_compression_rate = 0
-                            self.touch = False
+                        self.x_compression_rate -= abs(self.speed * math.cos(self.angle))
                     if self.y_compression_rate > 0:
-                        self.y_compression_rate -= self.speed * math.sin(self.angle) *2
-                        if self.y_compression_rate < 0:
-                            self.y_compression_rate = 0
-                            self.touch = False
+                        self.y_compression_rate -= abs(self.speed * math.sin(self.angle))
+                    if self.x_compression_rate < 0 or self.y_compression_rate < 0:  # Расширение закончено
+                        self.touch = False
+                        self.x_compression_rate = 0
+                        self.y_compression_rate = 0
+                        # self.touchSideReset()
+                                    
+                pygame.draw.ellipse(
+                        self.screen, 
+                        self.getColor(), 
+                        [
+                        self.x_position + self.x_compression_rate/3, 
+                        self.y_position + self.y_compression_rate/3,  
+                        self.diametr - self.x_compression_rate, 
+                        self.diametr - self.y_compression_rate
+                        ]
+                        )
+                
             else:
-                self.angle = self.angle_b * (self.angle_a * self.base_angle + (self.angle_b - 1)/2 * 3.14)
-                self.base_angle += random.randrange(-10, 10)/ 100 
-            pygame.draw.ellipse(
-                    self.screen, 
-                    self.get_color(), 
-                    [self.x_position, self.y_position, self.diametr-self.x_compression_rate, self.diametr-self.y_compression_rate]
-                    )    
+                self.touchSide()
+                self.getAngle()
+                self.touchSideReset()
+                pygame.draw.ellipse(self.screen, self.getColor(), [self.x_position, self.y_position, self.diametr, self.diametr])
+        else:
+            self.touch = False
+            self.x_compression_rate = 0
+            self.y_compression_rate = 0
+            self.inFrame()
+            pygame.draw.ellipse(self.screen, self.getColor(), [self.x_position, self.y_position, self.diametr, self.diametr])
 
-        else:            
-            self.it_touch()
-            pygame.draw.ellipse(self.screen, self.get_color(), [self.x_position, self.y_position, self.diametr, self.diametr])    
 
-
-    def get_color(self):
+    def getColor(self):
         if self.color[0] == 255:
             if self.color[2] == 0:
                 self.color[1] += 1
@@ -105,30 +126,45 @@ class Ball:
         return self.color
 
 
-    def it_touch(self):
-        if self.x_position == 0:
-            self.touch = True
-            self.x_compression = True
-            self.angle_b *= -1
-
-        elif self.y_position == 0:
-            self.touch = True
-            self.y_compression = True
-            self.angle_a *= -1
+    def itTouch(self):
+        if self.x_position < 0 or self.y_position < 0 or self.x_position + self.diametr > self.screen_size[0] or self.y_position + self.diametr > self.screen_size[1]:
+            return True
+        return False
 
 
-        elif self.x_position == self.screen_size[0]-self.diametr:
-            self.touch = True
-            self.x_compression = True
-            self.angle_b *= -1
+    def touchSide(self):
+        if self.x_position < 0:
+            self.touch_side[0][0] = True
 
-        elif self.y_position == self.screen_size[1]-self.diametr:
-            self.touch = True
-            self.y_compression = True
-            self.angle_a *= -1
+        elif self.y_position < 0:
+            self.touch_side[1][0] = True
+
+        elif self.x_position + self.diametr > self.screen_size[0]:
+            self.touch_side[0][1] = True
+
+        elif self.y_position + self.diametr > self.screen_size[1]:
+            self.touch_side[1][1] = True
+
+
+    def touchSideReset(self):
+        self.touch_side = [[False, False],[False, False]]
+
+
+    def getAngle(self):
+        if self.touch_side[0][0]:
+            self.move_side_x = 1
+        if self.touch_side[1][0]:
+            self.move_side_y = 1
+        if self.touch_side[0][1]:
+            self.move_side_x = -1
+        if self.touch_side[1][1]:
+            self.move_side_y = -1
+
+        self.angle = self.move_side_x * (self.move_side_y * self.base_angle + (self.move_side_x - 1)/2 * 3.14)
+        self.base_angle += random.randrange(-10, 10)/ 100 
 
         
-    def in_frame(self):
+    def inFrame(self):
         if self.x_position < 0:
             self.x_position = 0
 

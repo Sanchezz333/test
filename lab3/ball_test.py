@@ -14,9 +14,13 @@ TITLE = "Major League Soccer"
 screen = pygame.display.set_mode(SIZE)
 pygame.display.set_caption(TITLE)
 
+ball_arr = []
+for i in range(10):
+    ball = Ball.Ball(screen,list(SIZE), random.randrange(10, 100), random.randrange(40))
+    ball.setPosition(random.randrange(SIZE[0]), random.randrange(SIZE[1]))
+    ball.setColor(random.randrange(255), random.randrange(255), random.randrange(255))
+    ball_arr.append(ball)
 
-ball = Ball.Ball(screen,list(SIZE), 30, 0)
-ball.set_position(200, 200)
 
 # Timer
 clock = pygame.time.Clock()
@@ -35,8 +39,9 @@ while not done:
     
     screen.fill((255, 255, 255))
 
-#code
-    ball.move()
+
+    for ball in ball_arr:
+        ball.move()
 
     pygame.display.flip()
 
