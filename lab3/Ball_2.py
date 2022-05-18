@@ -1,21 +1,15 @@
-import pygame
-import math
-import random
 
 class Ball:
     x_position = 0
     y_position = 0
     x_speed = 3
     y_speed = 3
-    x_compression = False
-    y_compression = False
+    
+    
     x_compression_rate = 0
     y_compression_rate = 0
     x_acceleration = 0
     y_acceleration = 0
-    touch_side = [[False, False],[False, False]]
-    touch = False
-
     
 
     def __init__(self, screen_size=[0,0], diametr=10, elastic=0):
@@ -31,21 +25,25 @@ class Ball:
             self.elastic = diametr * 0.9
         self.color = [0, 0, 0]
         self.inFrame()
+        self.touch_side = [[False, False],[False, False]]
+        self.x_touch = False
+        self.y_touch = False
+        self.y_compression = False
+        self.x_compression = False
+
+
+
     
     
     def setPosition(self, x,y):
-        '''
-        Установить координаты центра объекта
-        '''
+        '''Установить координаты центра объекта '''
         self.x_position = x
         self.y_position = y
         self.inFrame()
 
 
     def colorUpdare(self, r, g, b):
-        '''
-        Установить цвет объекта
-        '''
+        '''Установить цвет объекта'''
         self.color[0] = r
         self.color[1] = g
         self.color[2] = b
@@ -66,49 +64,54 @@ class Ball:
         '''Движение эластичного объекта'''
         self.x_position += self.x_speed
         self.y_position += self.y_speed
-        if self.itTouch():
+
+        if self.itTouch() :
             if self.elastic == 0: 
                 self.hard_move()
             else:
-                if not self.touch: # Определение оси сжатия
-                    self.touchSide()
-                    self.touch = True
+                if not self.x_touch: # Определение оси сжатия
+                    self.x_touch = self.touch_side[0][0] or self.touch_side[0][1]
                     self.x_compression = self.touch_side[0][0] or self.touch_side[0][1]
-                    self.y_compression = self.touch_side[1][0] or self.touch_side[1][1]
-                if self.x_compression or self.y_compression: # Сжатие
-                    if self.x_compression:
-                        self.x_compression_rate += abs(self.x_speed*2)
-                        self.x_size -= abs(self.x_speed*2)
-                    if self.y_compression:
-                        self.y_compression_rate += abs(self.y_speed*2)
-                        self.y_size -= abs(self.y_speed*2)
-                    if self.x_compression_rate >= self.elastic:  # Сжатие закончено x
-                        self.x_compression = False
-                        self.x_speed *= -1
-                        self.touch_side[0][0] = False
-                        self.touch_side[0][1] = False
-                    if self.y_compression_rate >= self.elastic:  # Сжатие закончено y
-                        self.y_compression = False
-                        self.y_speed *= -1
-                        self.touch_side[1][0] = False
-                        self.touch_side[1][1] = False
-                
-                if self.x_compression_rate > 0 and not self.x_compression:
-                    self.x_compression_rate -= self.x_speed*2
-                    self.x_size += abs(self.x_speed*2)
-                if self.y_compression_rate > 0 and not self.y_compression:
-                    self.y_compression_rate -= self.y_speed*2
-                    self.y_size += abs(self.y_speed*2)
 
-                if self.x_compression_rate < 0:  # Расширение закончено x
-                    self.touch = False
-                    self.x_compression_rate = 0
-                    self.x_size = self.diametr
-                    
-                if self.y_compression_rate < 0:  # Расширение закончено y
-                    self.touch = False
-                    self.y_compression_rate = 0
-                    self.y_size = self.diametr
+                if not self.y_touch: # Определение оси сжатия
+                    self.y_touch = self.touch_side[1][0] or self.touch_side[1][1]
+                    self.y_compression = self.touch_side[1][0] or self.touch_side[1][1]
+
+        if self.x_compression:
+            self.x_compression_rate += abs(self.x_speed*2)
+            self.x_size -= abs(self.x_speed*2)
+            if self.x_compression_rate >= self.elastic:  # Сжатие закончено x
+                self.x_compression = False
+                self.x_compression_rate = self.elastic
+                self.x_speed *= -1                
+                self.touch_side[0][0] = False
+                self.touch_side[0][1] = False
+        else:
+            if self.x_compression_rate > 0:
+                self.x_compression_rate -= abs(self.x_speed*2)
+                self.x_size += abs(self.x_speed*2)
+            if self.x_compression_rate < 0:  # Расширение закончено x
+                self.x_touch = False
+                self.x_compression_rate = 0
+                self.x_size = self.diametr
+
+        if self.y_compression:
+            self.y_compression_rate += abs(self.y_speed*2)
+            self.y_size -= abs(self.y_speed*2)
+            if self.y_compression_rate >= self.elastic:  # Сжатие закончено y
+                self.y_compression_rate = self.elastic
+                self.y_compression = False
+                self.y_speed *= -1                
+                self.touch_side[1][0] = False
+                self.touch_side[1][1] = False
+        else:
+            if self.y_compression_rate > 0:
+                self.y_compression_rate -= abs(self.y_speed*2)
+                self.y_size += abs(self.y_speed*2)
+            if self.y_compression_rate < 0:  # Расширение закончено y
+                self.y_touch = False
+                self.y_compression_rate = 0
+                self.y_size = self.diametr
         
 
     def real_move(self):

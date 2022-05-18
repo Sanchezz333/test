@@ -9,18 +9,20 @@ import Ball
 pygame.init()
 
 # Window
-SIZE = (800, 600)
+SIZE = (800, 800)
 TITLE = "Major League Soccer"
 screen = pygame.display.set_mode(SIZE)
 pygame.display.set_caption(TITLE)
 
-ball_arr = []
-for i in range(10):
-    ball = Ball.Ball(screen,list(SIZE), random.randrange(10, 100), random.randrange(40))
-    ball.setPosition(random.randrange(SIZE[0]), random.randrange(SIZE[1]))
-    ball.setColor(random.randrange(255), random.randrange(255), random.randrange(255))
-    ball_arr.append(ball)
-
+# ball_arr = []
+# for i in range(1):
+#     ball = Ball.Ball(screen,list(SIZE), random.randrange(10, 100), random.randrange(80))
+#     ball.setPosition(random.randrange(SIZE[0]), random.randrange(SIZE[1]))
+#     ball.setColor(random.randrange(255), random.randrange(255), random.randrange(255))
+#     ball.speed = random.randrange(2,8)
+#     ball_arr.append(ball)
+ball = Ball.Ball(screen,[400, 400], 100, 40)
+ball.setPosition(200, 200)
 
 # Timer
 clock = pygame.time.Clock()
@@ -40,9 +42,9 @@ while not done:
     screen.fill((255, 255, 255))
 
 
-    for ball in ball_arr:
-        ball.move()
-
+    # for ball in ball_arr:
+    #     ball.move()
+    ball.move()
     pygame.display.flip()
 
     # Limit refresh rate of game loop 

@@ -15,7 +15,7 @@ screen = pygame.display.set_mode(SIZE)
 pygame.display.set_caption(TITLE)
 
 ball_arr=[]
-for i in range(1):
+for i in range(10):
     ball = Ball(list(SIZE), 50, 40)
     ball.x_speed = random.randrange(20, 50) / 10
     ball.y_speed = random.randrange(20, 50) / 10
