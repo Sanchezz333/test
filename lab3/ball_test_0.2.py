@@ -46,16 +46,16 @@ while not done:
 
 
     for ball in ball_arr:
-        pos = ball.getDrawPosition()
-        if pos[0] > SIZE[0]-100 and pos[1] > SIZE[1]-100:
+        
+        if ball.x_position > SIZE[0]-100 and ball.y_position > SIZE[1]-100:
             ball.x_acceleration = -20
             ball.y_acceleration = -25
         else:
             ball.x_acceleration = 0
             ball.y_acceleration = 3
         
-        
-        ball.elastic_move()
+        pos = ball.getDrawPosition()
+        ball.real_move()
         
         ball.colorUpdare()
         pygame.draw.ellipse(screen, ball.color, [pos[0], pos[1], ball.x_size, ball.y_size])

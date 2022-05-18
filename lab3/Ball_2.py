@@ -105,7 +105,7 @@ class Ball:
                 self.y_touch = False
                 self.y_compression_rate = 0
                 self.y_size = self.diametr
-        
+
 
     def real_move(self):
         ''''Движение твердого объекта с учетом ускорения'''
@@ -114,8 +114,10 @@ class Ball:
         if self.itTouch(): 
             if self.touch_side[0][0] or self.touch_side[0][1]:
                 self.x_speed *= 0.8
+                self.y_speed *= 0.99
             if self.touch_side[1][0] or self.touch_side[1][1]:
-                self.y_speed *= 0.9           
+                self.y_speed *= 0.9
+                self.x_speed *= 0.99           
             self.directionUpdate()
             self.touchSideReset()
             self.inFrame()
