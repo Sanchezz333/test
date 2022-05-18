@@ -4,13 +4,10 @@ class Ball:
     y_position = 0
     x_speed = 3
     y_speed = 3
-    
-    
     x_compression_rate = 0
     y_compression_rate = 0
     x_acceleration = 0
     y_acceleration = 0
-    
 
     def __init__(self, screen_size=[0,0], diametr=10, elastic=0):
         '''
@@ -23,17 +20,13 @@ class Ball:
         self.elastic = diametr * (elastic/100)
         if self.elastic > diametr * 0.9:
             self.elastic = diametr * 0.9
-        self.color = [0, 0, 0]
+        self.color = [0, 0, 0]        
         self.inFrame()
         self.touch_side = [[False, False],[False, False]]
         self.x_touch = False
         self.y_touch = False
         self.y_compression = False
         self.x_compression = False
-
-
-
-    
     
     def setPosition(self, x,y):
         '''Установить координаты центра объекта '''
@@ -157,7 +150,6 @@ class Ball:
                 self.color[1] -= 1
     
 
-
     def itTouch(self):
         self.touchSide()
         return self.touch_side[0][0] or self.touch_side[0][1] or self.touch_side[1][0] or self.touch_side[1][1]
@@ -166,13 +158,10 @@ class Ball:
     def touchSide(self):
         if self.x_position - self.x_size/2 < 0:
             self.touch_side[0][0] = True
-
         if self.y_position- self.y_size/2 < 0:
             self.touch_side[1][0] = True
-
         if self.x_position + self.x_size/2 > self.screen_size[0]:
             self.touch_side[0][1] = True
-
         if self.y_position + self.y_size/2 > self.screen_size[1]:
             self.touch_side[1][1] = True
 
@@ -191,14 +180,11 @@ class Ball:
     def inFrame(self):
         if self.x_position - self.x_size/2 < 0:
             self.x_position = self.x_size/2
-
-        elif self.y_position - self.y_size/2 < 0:
+        if self.y_position - self.y_size/2 < 0:
             self.y_position = self.x_size/2
-
-        elif self.x_position + self.x_size/2 > self.screen_size[0]:
+        if self.x_position + self.x_size/2 > self.screen_size[0]:
             self.x_position = self.screen_size[0] - self.x_size/2
-
-        elif self.y_position + self.y_size/2 > self.screen_size[1]:
+        if self.y_position + self.y_size/2 > self.screen_size[1]:
             self.y_position = self.screen_size[1] - self.x_size/2
 
     def getDrawPosition(self):

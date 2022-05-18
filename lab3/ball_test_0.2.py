@@ -16,10 +16,10 @@ pygame.display.set_caption(TITLE)
 
 ball_arr=[]
 for i in range(10):
-    ball = Ball(list(SIZE), 50, 40)
+    ball = Ball(list(SIZE), 100, 40)
     ball.x_speed = random.randrange(20, 50) / 10
     ball.y_speed = random.randrange(20, 50) / 10
-    ball.setPosition(200, 200)
+    # ball.setPosition(100, 100)
     ball_arr.append(ball)
 
 # Timer
