@@ -36,7 +36,7 @@ def planetGravity(ball, pos, g):
     ball.x_acceleration = g * (pos[0]-ball.x_position) / r
     ball.y_acceleration = g * (pos[1]-ball.y_position) / r
 
-cur_pos = [0, 0]
+
 
 # Initialize game engine
 pygame.init()
@@ -47,12 +47,18 @@ TITLE = "Major League Soccer"
 screen = pygame.display.set_mode(SIZE)
 pygame.display.set_caption(TITLE)
 
+cur_pos = [0, 0]
 
-ball = Ball(list(SIZE), 50, 40)
-ball.x_speed = random.randrange(20, 50) / 10
-ball.y_speed = random.randrange(20, 50) / 10
-ball.y_acceleration = 3
-ball.x_acceleration = 1
+ball_arr = []
+for i in range(10):
+    ball = Ball(list(SIZE), 50, 40)
+    ball.x_speed = random.randrange(20, 50) / 10
+    ball.y_speed = random.randrange(20, 50) / 10
+    ball.y_acceleration = random.randrange(20, 50) / 10
+    ball.x_acceleration = random.randrange(20, 50) / 10
+    ball.x_position = random.randrange(100, 500)
+    ball.y_position = random.randrange(100, 500)
+    ball_arr.append(ball)
 
 
 
@@ -77,15 +83,16 @@ while not done:
 
     screen.fill((200, 200, 200))
 
-    drawGravitymeter(400, 300, ball.x_acceleration, ball.y_acceleration)
-    planetGravity(ball, cur_pos, 1)
-    ball.x_speed *= 0.99
-    ball.y_speed *= 0.99
-    pos = ball.getDrawPosition()
-    ball.real_move()
-    ball.colorUpdare()
-    pygame.draw.ellipse(screen, ball.color, [
-                        pos[0], pos[1], ball.x_size, ball.y_size])
+    # drawGravitymeter(400, 300, ball.x_acceleration, ball.y_acceleration)
+    for ball in ball_arr:
+        planetGravity(ball, cur_pos, 1)
+        ball.x_speed *= 0.999
+        ball.y_speed *= 0.999
+        pos = ball.getDrawPosition()
+        ball.real_move()
+        ball.colorUpdare()
+        pygame.draw.ellipse(screen, ball.color, [
+                            pos[0], pos[1], ball.x_size, ball.y_size])
 
     pygame.display.flip()
 
