@@ -5,7 +5,10 @@ import math
 import random
 from Ball_2 import Ball
 
+
 def drawGravitymeter(x, y, x_a, y_a):
+    '''Рисует Гравиметр в координатах x и y указывающий направление гравитации.
+    Для вычистения использует ускорение по осям x_a и y_a'''
     radius = 50
     color = [0, 0, 0]
     betta = 157/1000
@@ -16,12 +19,24 @@ def drawGravitymeter(x, y, x_a, y_a):
     rx = radius / a * x_a
     ry = radius / a * y_a
     pygame.draw.circle(screen, color, [x, y], radius, 2)
-    pygame.draw.line(screen, color, [x-rx, y-ry],[x+rx, y+ry])
 
-    pygame.draw.line(screen, color, [x+rx-0.5*radius*math.cos(alpha+betta), y+ry-0.5*radius*math.sin(alpha+betta)],[x+rx, y+ry])
-    pygame.draw.line(screen, color, [x+rx-0.5*radius*math.cos(alpha-betta), y+ry-0.5*radius*math.sin(alpha-betta)],[x+rx, y+ry])
+    pygame.draw.line(screen, color, [x-rx, y-ry], [x+rx, y+ry])
+    pygame.draw.line(screen, color, [
+                     x+rx-0.5*radius*math.cos(alpha+betta), y+ry-0.5*radius*math.sin(alpha+betta)], [x+rx, y+ry])
+    pygame.draw.line(screen, color, [
+                     x+rx-0.5*radius*math.cos(alpha-betta), y+ry-0.5*radius*math.sin(alpha-betta)], [x+rx, y+ry])
 
 
+def changeBallAcceleration(ball, pos, size, max_acceleration):
+    ball.x_acceleration = max_acceleration * (pos[0]-ball.x_position) / size[0]
+    ball.y_acceleration = max_acceleration * (pos[1]-ball.y_position) / size[1]
+
+def planetGravity(ball, pos, g):
+    r = math.sqrt((pos[0]-ball.x_position)**2 + (pos[1]-ball.y_position)**2)
+    ball.x_acceleration = g * (pos[0]-ball.x_position) / r
+    ball.y_acceleration = g * (pos[1]-ball.y_position) / r
+
+cur_pos = [0, 0]
 
 # Initialize game engine
 pygame.init()
@@ -40,6 +55,7 @@ ball.y_acceleration = 3
 ball.x_acceleration = 1
 
 
+
 # Timer
 clock = pygame.time.Clock()
 refresh_rate = 60
@@ -54,23 +70,26 @@ while not done:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             done = True
-        elif event.type == pygame.MOUSEBUTTONDOWN:
-            ball.x_acceleration, ball.y_acceleration = ball.y_acceleration, -ball.x_acceleration
-    
+        # elif event.type == pygame.MOUSEBUTTONDOWN:
+        #     changeBallAcceleration(ball, event.pos, SIZE, 20)
+        elif event.type == pygame.MOUSEMOTION:
+            cur_pos = event.pos
+
     screen.fill((200, 200, 200))
 
     drawGravitymeter(400, 300, ball.x_acceleration, ball.y_acceleration)
-
+    planetGravity(ball, cur_pos, 1)
+    ball.x_speed *= 0.99
+    ball.y_speed *= 0.99
     pos = ball.getDrawPosition()
     ball.real_move()
     ball.colorUpdare()
-    pygame.draw.ellipse(screen, ball.color, [pos[0], pos[1], ball.x_size, ball.y_size])
-
-    
+    pygame.draw.ellipse(screen, ball.color, [
+                        pos[0], pos[1], ball.x_size, ball.y_size])
 
     pygame.display.flip()
 
-    # Limit refresh rate of game loop 
+    # Limit refresh rate of game loop
     clock.tick(refresh_rate)
 
 
